@@ -10,7 +10,7 @@ usage()
     echo "-o                    -Generate ota package"
     echo "-v                    -Set build version name for output image folder"
     echo "-j                    -Build jobs"
-    exit 1
+    return 1
 }
 
 BUILD_OTA=false
@@ -65,7 +65,7 @@ if [[ -z $ARCH || -z $LUNCH || -z $UBOOT_DEFCONFIG || -z $KERNEL_DEFCONFIG || -z
     echo "UBOOT_DEFCONFIG=$UBOOT_DEFCONFIG"
     echo "KERNEL_DEFCONFIG=$KERNEL_DEFCONFIG"
     echo "KERNEL_DTS=$KERNEL_DTS"
-    exit 1
+    return 1
 fi
 
 source build/envsetup.sh >/dev/null && setpaths
@@ -100,25 +100,25 @@ elif [ "$ARCH" = "arm" ];then
     ARCHV=arm
 else
     echo "Unknown arch, exit!"
-    exit 1
+    return 1
 fi
 
-cd u-boot && make ARCHV=$ARCHV distclean && make ARCHV=$ARCHV $UBOOT_DEFCONFIG && make ARCHV=$ARCHV -j$JOBS && cd -
+cd u-boot && make ARCHV=$ARCHV $UBOOT_DEFCONFIG && make ARCHV=$ARCHV -j$JOBS && cd -
 if [ $? -eq 0 ]; then
     echo "Build uboot ok!"
 else
     echo "Build uboot failed!"
-    exit 1
+    return 1
 fi
 
 # build kernel
 echo "Start build kernel"
-cd kernel && make ARCH=$ARCH distclean && make ARCH=$ARCH $KERNEL_DEFCONFIG && make ARCH=$ARCH $KERNEL_DTS.img -j$JOBS && cd -
+cd kernel && make ARCH=$ARCH $KERNEL_DEFCONFIG && make ARCH=$ARCH $KERNEL_DTS.img -j$JOBS && cd -
 if [ $? -eq 0 ]; then
     echo "Build kernel ok!"
 else
     echo "Build kernel failed!"
-    exit 1
+    return 1
 fi
 # build wifi ko
 #source device/rockchip/common/build_wifi_ko.sh
@@ -126,13 +126,14 @@ fi
 
 # build android
 echo "start build android"
-make installclean
+croot
+#make installclean
 make -j$JOBS
 if [ $? -eq 0 ]; then
     echo "Build android ok!"
 else
     echo "Build android failed!"
-    exit 1
+    return 0
 fi
 
 # mkimage.sh
@@ -142,7 +143,7 @@ if [ $? -eq 0 ]; then
     echo "Make image ok!"
 else
     echo "Make image failed!"
-    exit 1
+    #return 1
 fi
 
 if [ "$BUILD_OTA" = true ] ; then
@@ -165,7 +166,7 @@ if [ $? -eq 0 ]; then
     echo "Make update image ok!"
 else
     echo "Make update image failed!"
-    exit 1
+    #return 1
 fi
 cd -
 

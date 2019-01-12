@@ -150,7 +150,7 @@ BOARD_SEPOLICY_DIRS ?= device/rockchip/common/sepolicy
 
 # Recovery
 TARGET_NO_RECOVERY ?= false
-TARGET_ROCHCHIP_RECOVERY ?= true
+TARGET_ROCKCHIP_RECOVERY ?= true
 
 # to flip screen in recovery 
 BOARD_HAS_FLIPPED_SCREEN ?= false
